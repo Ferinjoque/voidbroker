@@ -1,7 +1,9 @@
 # voidbroker
 
+[![CI](https://github.com/Ferinjoque/voidbroker/actions/workflows/ci.yml/badge.svg)](https://github.com/Ferinjoque/voidbroker/actions/workflows/ci.yml)
+
 A **local-first quant terminal for the Warframe Market economy.** Not another
-"buy low / sell high" price checker — voidbroker is built around the parts of the
+"buy low / sell high" price checker. voidbroker is built around the parts of the
 Warframe economy that are structurally inefficient and hard for humans to reason about,
 and it archives the data those edges require.
 
@@ -12,25 +14,38 @@ and it archives the data those edges require.
 > the signals are **backtested** against the archive (buy-the-dip and the disposition
 > predictor). A Warframe-themed React terminal with item thumbnails surfaces it all. See
 > [docs/ROADMAP.md](docs/ROADMAP.md) for what's next.
+>
+> **Honest status:** the buy-the-dip edge is backtested on the live archive (+16.7% median
+> edge). The disposition predictor is a transparent heuristic (v1); its accuracy is only
+> *proven* once the archive captures a real DE rebalance, so treat that call as directional,
+> not validated, until then. The product's moat is the dataset compounding over time.
+
+## Screenshots
+
+| Markets | Opportunities |
+|---|---|
+| ![Markets view: candlestick chart](docs/screenshots/markets.png) | ![Buy opportunities, ranked](docs/screenshots/opportunities.png) |
+| **Disposition forecast** | **Undervalued rivens** |
+| ![Disposition forecast with pressure gauge](docs/screenshots/forecast.png) | ![Undervalued riven listings](docs/screenshots/riven-deals.png) |
 
 ## Why it exists
 
 warframe.market only exposes ~90 days of history and no archive of disposition over
 time. voidbroker snapshots the market on a schedule and **stores it forever** in a local
-DuckDB file. The longer it runs, the more proprietary the dataset becomes — that's the moat.
+DuckDB file. The longer it runs, the more proprietary the dataset becomes: that's the moat.
 
 ### The edges it's built to chase
 
-1. **Riven disposition prediction** *(shipped, v1)* — disposition (the riven strength
+1. **Riven disposition prediction** *(shipped, v1)*: disposition (the riven strength
    multiplier DE sets per weapon from usage) is captured on every ingest, and a predictor
    reads distance-from-baseline, current riven demand, and the archived trajectory to call
    the *next* nerf/buff before DE ships it. Heuristic today; gets data-driven as history
    compounds.
-2. **Riven fair-value model + undervalued-listing scanner** — appraise unique randomized
+2. **Riven fair-value model + undervalued-listing scanner**: appraise unique randomized
    rivens and flag god-rolls priced like junk.
-3. **Event-driven forecasting** — Prime vault lifecycle, Baro rotations, balance patches
+3. **Event-driven forecasting**: Prime vault lifecycle, Baro rotations, balance patches
    as catalysts.
-4. **Liquidity-adjusted scoring** — every opportunity weighted by *how fast it flips*,
+4. **Liquidity-adjusted scoring**: every opportunity weighted by *how fast it flips*,
    not just margin. Headline prices use only live (online/in-game) orders.
 
 ## Stack
@@ -38,19 +53,19 @@ DuckDB file. The longer it runs, the more proprietary the dataset becomes — th
 | Layer | Choice | Why |
 |-------|--------|-----|
 | Language | **Python 3.11+** | The project is fundamentally data + ML |
-| Store | **DuckDB** (single file) | Embedded columnar OLAP — built for time-series analytics, zero server |
+| Store | **DuckDB** (single file) | Embedded columnar OLAP, built for time-series analytics, zero server |
 | HTTP | **httpx** (async, rate-limited) | Polite ~3 req/s sweeps of the API |
 | API | **FastAPI** | The read API the terminal talks to |
 | Scheduler | **APScheduler** | Recurring snapshots that build the archive |
 | Tooling | **uv** + **pytest** | Fast, reproducible, fully local |
 
-Everything runs locally. No hosting required — clone, `uv sync`, and replicate.
+Everything runs locally. No hosting required: clone, `uv sync`, and replicate.
 
 ## Quickstart
 
 ```bash
 uv sync                       # install into a local .venv
-cp .env.example .env          # optional — defaults work out of the box
+cp .env.example .env          # optional: defaults work out of the box
 
 # Build the archive (catalog + 90d price history). --limit keeps a first run quick.
 uv run voidbroker ingest --limit 50
@@ -63,13 +78,13 @@ uv run voidbroker serve       # read API at http://127.0.0.1:8000  (docs at /doc
 Flags for `ingest`: `--orders` (live order books), `--rivens` (riven auctions per weapon),
 `--worldstate` (Baro / catalysts), `--details` (per-item ducats + set composition, for the
 arbitrage/ducat signals). Each is one-call-per-item heavier; combine as needed.
-`--batch N` processes only the **stalest N refs per source** — bounded, resumable sweeps
+`--batch N` processes only the **stalest N refs per source**: bounded, resumable sweeps
 that rotate through the whole catalog (use this for scheduled runs).
 
 ### Run it on a cadence (the moat)
 
 The archive only compounds if ingestion runs regularly. For unattended operation, register
-a repeating bounded ingest with your OS scheduler — it survives reboots and stays polite:
+a repeating bounded ingest with your OS scheduler; it survives reboots and stays polite:
 
 ```powershell
 # Windows: bounded ingest every 6h (see docs/OPERATIONS.md for cron / systemd).
@@ -146,7 +161,7 @@ reduced-motion and compact-density toggles.
 ### How opportunities are scored
 
 Opportunities are items whose best **live** sell price sits below their recent baseline,
-scored by `margin% × liquidity ÷ (1 + est. flip-days)` — so a fat margin on something
+scored by `margin% × liquidity ÷ (1 + est. flip-days)`, so a fat margin on something
 that never trades ranks *below* a thinner margin that flips in a day. Requires an
 `ingest --orders` pass first (live order books). Weights are documented heuristics (v1),
 to be recalibrated against realized flips as history accumulates.
@@ -161,9 +176,9 @@ Network is fully mocked (respx) and the DB runs in-memory, so the suite is fast 
 
 ## Data sources
 
-- warframe.market **v2** API — catalog (`/items`), riven weapons + disposition
+- warframe.market **v2** API: catalog (`/items`), riven weapons + disposition
   (`/riven/weapons`), live orders (`/orders/item/{slug}`)
-- warframe.market **v1** API — price statistics (`/items/{slug}/statistics`)
+- warframe.market **v1** API: price statistics (`/items/{slug}/statistics`)
 
 See [`docs/`](docs/) for the API reference and reconciliation notes.
 
