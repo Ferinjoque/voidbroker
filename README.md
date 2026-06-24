@@ -27,11 +27,10 @@ web app you open in your browser.
 **If you don't play Warframe:** think of it as a tiny single-player Bloomberg terminal for a
 video-game economy. Everything runs locally. No account, no login, nothing leaves your computer.
 
-> **Status, honestly.** The price, arbitrage, and ducat signals work today, and the
-> "buy-the-dip" signal is backtested on real data (it beat buying on a random day by about
-> 17%). The riven *prediction* feature is a transparent first version: it explains its
-> reasoning and gets sharper the longer the tool runs and builds up history. See
-> [Roadmap](docs/ROADMAP.md) for what's solid and what's still proving itself.
+> **Status:** the market signals (opportunities, arbitrage, ducats) are working, and the
+> buy-the-dip signal is backtested at about +17% versus buying on a random day. The riven
+> disposition forecast is an early, transparent version that sharpens as your archive grows.
+> [Roadmap](docs/ROADMAP.md).
 
 ## What it does
 
@@ -61,10 +60,10 @@ Each of these is a screen in the terminal. Jargon is explained the first time it
 ## Screenshots
 
 | Buy opportunities | Undervalued rivens |
-|---|---|
+|:---:|:---:|
 | ![Opportunities](docs/screenshots/opportunities.png) | ![Riven deals](docs/screenshots/riven-deals.png) |
-| **Disposition forecast** | |
-| ![Forecast](docs/screenshots/forecast.png) | |
+| **Disposition forecast** | **Daily digest** |
+| ![Forecast](docs/screenshots/forecast.png) | ![Digest](docs/screenshots/digest.png) |
 
 ## Quickstart
 
