@@ -57,7 +57,7 @@ export function Watchlist({ onOpenItem }: { onOpenItem: OpenItem }) {
         <h1 className="display text-3xl font-semibold tracking-tight text-ink-50">Watchlist</h1>
         <p className="mt-1 max-w-[72ch] text-sm text-ink-400">
           Items you've pinned. Star anything from Markets, the command palette, or an item
-          drawer to track its price here. Stored locally — it never leaves this machine.
+          drawer to track its price here. Stored locally; it never leaves this machine.
         </p>
       </header>
 

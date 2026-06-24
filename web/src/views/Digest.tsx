@@ -76,7 +76,7 @@ export function Digest({ onGo, onOpenItem }: { onGo: (v: ViewId) => void; onOpen
                   </button>
                 ))
               ) : (
-                <Empty>None — run an order-book ingest.</Empty>
+                <Empty>None yet. Run an order-book ingest.</Empty>
               )}
             </Section>
 
@@ -93,7 +93,7 @@ export function Digest({ onGo, onOpenItem }: { onGo: (v: ViewId) => void; onOpen
                   </div>
                 ))
               ) : (
-                <Empty>None — run a riven ingest.</Empty>
+                <Empty>None yet. Run a riven ingest.</Empty>
               )}
             </Section>
 
@@ -139,7 +139,7 @@ export function Digest({ onGo, onOpenItem }: { onGo: (v: ViewId) => void; onOpen
               )}
               {d.void_trader?.phase === "active" && (
                 <div className="mt-2 flex items-center gap-2 border-t border-void-800 pt-2 text-xs text-amber">
-                  <Store size={13} /> Baro is here — leaves in{" "}
+                  <Store size={13} /> Baro is here, leaves in{" "}
                   {countdown(d.void_trader.hours_until_departure)}
                 </div>
               )}

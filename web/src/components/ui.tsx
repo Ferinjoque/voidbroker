@@ -160,19 +160,22 @@ export function Meter({
 }
 
 /* ── Pill ── small status tag. */
-export function Pill({ children, tone = "neutral" }: { children: ReactNode; tone?: string }) {
-  const tones: Record<string, string> = {
-    neutral: "text-ink-400 bg-void-800",
-    up: "text-up bg-up/10",
-    down: "text-down bg-down/10",
-    gold: "text-gold bg-gold/10",
-    cyan: "text-cyan bg-cyan/10",
-    amber: "text-amber bg-amber/10",
-    violet: "text-violet bg-violet/10",
-  };
+export type Tone = "neutral" | "up" | "down" | "gold" | "cyan" | "amber" | "violet";
+
+const TONE_CLASS: Record<Tone, string> = {
+  neutral: "text-ink-400 bg-void-800",
+  up: "text-up bg-up/10",
+  down: "text-down bg-down/10",
+  gold: "text-gold bg-gold/10",
+  cyan: "text-cyan bg-cyan/10",
+  amber: "text-amber bg-amber/10",
+  violet: "text-violet bg-violet/10",
+};
+
+export function Pill({ children, tone = "neutral" }: { children: ReactNode; tone?: Tone }) {
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide ${tones[tone] ?? tones.neutral}`}
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide ${TONE_CLASS[tone]}`}
     >
       {children}
     </span>

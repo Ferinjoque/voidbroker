@@ -17,10 +17,12 @@
 
   --color-ink-50: oklch(98% 0.005 265);
   --color-ink-100: oklch(94% 0.012 265);
+  --color-ink-200: oklch(86% 0.014 265);
   --color-ink-300: oklch(78% 0.016 265);
   --color-ink-400: oklch(67% 0.018 265);
-  --color-ink-600: oklch(54% 0.02 265);
-  --color-ink-700: oklch(44% 0.02 265);
+  --color-ink-500: oklch(61% 0.019 265);
+  --color-ink-600: oklch(56% 0.02 265);
+  --color-ink-700: oklch(50% 0.02 265);
 
   --color-gold: oklch(83% 0.135 86);
   --color-gold-dim: oklch(72% 0.11 86);
@@ -257,6 +259,15 @@ html[data-reduce-motion="1"] *::before,
 html[data-reduce-motion="1"] *::after {
   animation-duration: 0.01ms !important;
   transition-duration: 0.01ms !important;
+}
+
+/* Keyboard focus: a visible cyan ring on any keyboard-focused control. Many inputs/buttons
+   set outline-none for the mouse path; this restores a clear indicator for keyboard users
+   (mouse/touch focus stays quiet via :focus-visible). */
+:focus-visible {
+  outline: 2px solid var(--color-cyan);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 /* Compact density (Settings → Compact tables): tighten every table row so more fits on

@@ -2,12 +2,12 @@ import { useState, type CSSProperties } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown } from "lucide-react";
 import { api, wfm, type DispositionForecast } from "../lib/api";
-import { AsyncBlock, FilterChip, Meter, Pager, Panel, Pill } from "../components/ui";
+import { AsyncBlock, FilterChip, Meter, Pager, Panel, Pill, type Tone } from "../components/ui";
 import { usePagination } from "../hooks/usePagination";
 
 type Filter = "all" | "nerf" | "buff";
 
-const DIR_TONE: Record<string, string> = { nerf: "down", buff: "up", stable: "neutral" };
+const DIR_TONE: Record<string, Tone> = { nerf: "down", buff: "up", stable: "neutral" };
 
 /** Bidirectional gauge: fill grows left from center for nerf pressure (red),
     right for buff pressure (green). Magnitude is |pressure|, capped at the half-width. */
