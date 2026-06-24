@@ -28,10 +28,11 @@ from .rivens import find_undervalued
 from .signals import detect_disposition_changes, rank_opportunities
 from .storage import Storage
 
-# warframe.market slugs are lowercase alphanumeric + hyphen. Reject anything else at the
-# boundary so a malformed/oversized path segment never reaches the DB layer or gets echoed
-# back in a 404, and never pollutes fetch_state on a downstream fetch.
-_SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,119}$")
+# warframe.market slugs (url_name) are lowercase alphanumeric with underscores, and a few
+# weapon slugs use hyphens. Reject anything else at the boundary so a malformed/oversized
+# path segment never reaches the DB layer or gets echoed back in a 404, and never pollutes
+# fetch_state on a downstream fetch.
+_SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,119}$")
 
 
 def _valid_slug(slug: str) -> str:

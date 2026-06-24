@@ -4,7 +4,7 @@ import { chromium } from "playwright";
 import { mkdirSync } from "node:fs";
 
 const BASE = process.env.WEB_URL ?? "http://localhost:4173";
-const VIEWS = ["Today", "Dashboard", "Forecast", "Opportunities", "Riven Deals", "Disposition", "Validation", "Arbitrage", "Ducats", "Journal", "Baro", "Resurgence", "Markets"];
+const VIEWS = ["Today", "Dashboard", "Watchlist", "Forecast", "Opportunities", "Riven Deals", "Disposition", "Validation", "Arbitrage", "Ducats", "Journal", "Baro", "Resurgence", "Markets"];
 
 mkdirSync("scripts/shots", { recursive: true });
 
