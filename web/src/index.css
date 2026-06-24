@@ -1,0 +1,260 @@
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/space-grotesk";
+@import "@fontsource-variable/jetbrains-mono";
+@import "tailwindcss";
+
+/* ── Design tokens ───────────────────────────────────────────────────────────
+   "Void observatory" terminal. OKLCH, tinted toward void blue (265).
+   Palette is semantic: gold = signal/primary, cyan = void-energy/selection,
+   up/down = market direction, violet = rivens, amber = catalysts. */
+@theme {
+  --color-void-950: oklch(13% 0.022 265);
+  --color-void-900: oklch(16% 0.022 265);
+  --color-void-850: oklch(19.5% 0.022 265);
+  --color-void-800: oklch(24% 0.024 265);
+  --color-void-700: oklch(31% 0.026 265);
+  --color-void-600: oklch(40% 0.028 265);
+
+  --color-ink-50: oklch(98% 0.005 265);
+  --color-ink-100: oklch(94% 0.012 265);
+  --color-ink-300: oklch(78% 0.016 265);
+  --color-ink-400: oklch(67% 0.018 265);
+  --color-ink-600: oklch(54% 0.02 265);
+  --color-ink-700: oklch(44% 0.02 265);
+
+  --color-gold: oklch(83% 0.135 86);
+  --color-gold-dim: oklch(72% 0.11 86);
+  --color-up: oklch(74% 0.17 152);
+  --color-up-dim: oklch(64% 0.13 152);
+  --color-down: oklch(66% 0.19 25);
+  --color-down-dim: oklch(58% 0.15 25);
+  --color-cyan: oklch(78% 0.12 215);
+  --color-violet: oklch(72% 0.15 300);
+  --color-amber: oklch(80% 0.14 70);
+
+  --font-sans: "Inter Variable", system-ui, -apple-system, sans-serif;
+  --font-display: "Space Grotesk Variable", "Inter Variable", sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "SF Mono", monospace;
+
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+/* Always reserve the scrollbar gutter so content never shifts when it appears. */
+html {
+  scrollbar-gutter: stable;
+}
+
+body {
+  margin: 0;
+  color: var(--color-ink-100);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.45;
+  font-feature-settings: "cv05", "ss01";
+  -webkit-font-smoothing: antialiased;
+  /* Atmosphere: layered void-nebula glow over a deep base. No glassmorphism. */
+  background-color: var(--color-void-950);
+  background-image:
+    radial-gradient(900px 600px at 78% -8%, oklch(72% 0.11 86 / 0.1), transparent 60%),
+    radial-gradient(820px 560px at -6% 4%, oklch(72% 0.15 300 / 0.08), transparent 58%),
+    radial-gradient(1200px 800px at 50% 120%, oklch(78% 0.12 215 / 0.06), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Tailwind v4 no longer sets cursor:pointer on buttons; restore expected affordance. */
+button:not(:disabled),
+[role="button"],
+a,
+summary,
+label[for] {
+  cursor: pointer;
+}
+
+/* Numbers: monospaced, tabular, everywhere figures need to align. */
+.nums {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.01em;
+}
+.display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* ── Surfaces with depth ──────────────────────────────────────────────────── */
+.surface {
+  background: linear-gradient(
+    180deg,
+    oklch(22% 0.022 265 / 0.7),
+    oklch(18% 0.022 265 / 0.7)
+  );
+  border: 1px solid oklch(40% 0.028 265 / 0.35);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    inset 0 1px 0 oklch(98% 0.01 265 / 0.05),
+    0 1px 2px oklch(0% 0 0 / 0.3),
+    0 12px 32px -16px oklch(0% 0 0 / 0.7);
+}
+.hairline {
+  border: 1px solid oklch(40% 0.028 265 / 0.3);
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-void-700);
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ── Motion ───────────────────────────────────────────────────────────────────
+   Standardized tokens (impeccable 100/300/500). Enter = ease-out, exit = ease-in,
+   exit ≈ 75% of enter. Stagger via --i. */
+:root {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* expo out, entrances */
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0); /* exits */
+  --dur-instant: 120ms; /* press, color */
+  --dur-state: 220ms; /* hover, toggles */
+  --dur-layout: 340ms; /* drawer enter */
+  --dur-exit: 240ms; /* drawer leave (~75%) */
+  --dur-enter: 460ms; /* content reveal */
+}
+
+/* Row reveal is opacity-only so transforms never extend scroll height
+   (that was the transient scrollbar flash). Stagger capped via --i. */
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.row-in {
+  animation: fade-rise var(--dur-enter) var(--ease-out) both;
+  animation-delay: calc(min(var(--i, 0), 18) * 26ms);
+}
+
+/* Panels / headers can lift; they are not inside a long scroll list. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.rise {
+  animation: rise var(--dur-enter) var(--ease-out) both;
+}
+
+/* Drawer: enter from the right, exit is the exact reverse (faster, ease-in). */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(28px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes slide-out-right {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(28px);
+    opacity: 0;
+  }
+}
+.slide-in {
+  animation: slide-in-right var(--dur-layout) var(--ease-out) both;
+}
+.slide-out {
+  animation: slide-out-right var(--dur-exit) var(--ease-in) both;
+}
+
+/* Page transition: each view fades up on mount. Subtle (terminal, not playful):
+   short translate + fade so the switch reads as a deliberate change of screen
+   without delaying the data. Keyed remount in App.tsx re-triggers it per view. */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.page-enter {
+  animation: page-enter var(--dur-layout) var(--ease-out) both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.fade-in {
+  animation: fade-in var(--dur-state) var(--ease-out) both;
+}
+.fade-out {
+  animation: fade-out var(--dur-exit) var(--ease-in) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row-in,
+  .rise,
+  .page-enter,
+  .slide-in,
+  .slide-out,
+  .fade-in,
+  .fade-out {
+    animation: fade-rise 0.001ms both;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Manual override from the Settings panel. */
+html[data-reduce-motion="1"] *,
+html[data-reduce-motion="1"] *::before,
+html[data-reduce-motion="1"] *::after {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+}
