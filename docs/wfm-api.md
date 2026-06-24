@@ -1,10 +1,9 @@
 # Warframe Market API, voidbroker reference
 
-> **Upstream:** the official docs (server v0.23.0) are captured in
-> [`official-doc.md`](official-doc.md), rendered from the
+> **Upstream:** the official reference is the
 > [WFM Api v2 Documentation (Notion)](https://42bytes.notion.site/WFM-Api-v2-Documentation-5d987e4aa2f74b55a80db1a09932459d)
-> via a headless browser. **This file is the source of truth for how voidbroker uses the
-> API**, every shape below was verified against the live API on 2026-06-22.
+> (server v0.23.0). **This file is voidbroker's own source of truth for how it uses the API**,
+> every shape below was verified against the live API on 2026-06-22.
 
 ## Base URLs
 

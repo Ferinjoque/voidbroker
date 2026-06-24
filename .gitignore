@@ -22,3 +22,7 @@ scripts/scheduled-ingest.cmd
 .DS_Store
 .idea/
 .vscode/
+
+# Internal docs kept local (third-party API dump + impeccable product context)
+docs/official-doc.md
+PRODUCT.md

@@ -1,190 +1,158 @@
 # voidbroker
 
 [![CI](https://github.com/Ferinjoque/voidbroker/actions/workflows/ci.yml/badge.svg)](https://github.com/Ferinjoque/voidbroker/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
+[![Frontend: React + Vite](https://img.shields.io/badge/frontend-React%20%2B%20Vite-61dafb.svg)](web/)
+[![Local-first](https://img.shields.io/badge/local--first-no%20account%2C%20no%20cloud-8b5cf6.svg)](#)
 
-A **local-first quant terminal for the Warframe Market economy.** Not another
-"buy low / sell high" price checker. voidbroker is built around the parts of the
-Warframe economy that are structurally inefficient and hard for humans to reason about,
-and it archives the data those edges require.
+A local trading terminal for Warframe's player market. It watches prices, points out the
+trades worth making, and quietly keeps a history that [warframe.market](https://warframe.market)
+itself throws away after 90 days.
 
-> Status: **backend complete + terminal UI + predictive signals, validated.** Ingestion
-> (tiered, resumable, unattended), a local archive, and the full signal stack: liquidity-
-> adjusted opportunities, roll-quality-ranked riven deals, a disposition forecast, Prime
-> Resurgence price-impact, and Baro. Everything is rolled into a one-screen **digest**, and
-> the signals are **backtested** against the archive (buy-the-dip and the disposition
-> predictor). A Warframe-themed React terminal with item thumbnails surfaces it all. See
-> [docs/ROADMAP.md](docs/ROADMAP.md) for what's next.
->
-> **Honest status:** the buy-the-dip edge is backtested on the live archive (+16.7% median
-> edge). The disposition predictor is a transparent heuristic (v1); its accuracy is only
-> *proven* once the archive captures a real DE rebalance, so treat that call as directional,
-> not validated, until then. The product's moat is the dataset compounding over time.
+![voidbroker Markets view](docs/screenshots/markets.png)
+
+## What is this?
+
+Warframe is a game with a big player-run economy. Players sell gear to each other for
+**platinum** (the game's premium currency) on warframe.market. Prices move all the time, some
+items are quietly mispriced, and the best opportunities (a great roll listed for far too
+little, a part that's cheaper than the set it builds) are hard to spot by eye across thousands
+of items.
+
+voidbroker pulls that market data onto your machine and turns it into clear answers: what's
+cheap right now, what's likely to change soon, and what's worth flipping. It runs as a small
+web app you open in your browser.
+
+**If you don't play Warframe:** think of it as a tiny single-player Bloomberg terminal for a
+video-game economy. Everything runs locally. No account, no login, nothing leaves your computer.
+
+> **Status, honestly.** The price, arbitrage, and ducat signals work today, and the
+> "buy-the-dip" signal is backtested on real data (it beat buying on a random day by about
+> 17%). The riven *prediction* feature is a transparent first version: it explains its
+> reasoning and gets sharper the longer the tool runs and builds up history. See
+> [Roadmap](docs/ROADMAP.md) for what's solid and what's still proving itself.
+
+## What it does
+
+Each of these is a screen in the terminal. Jargon is explained the first time it shows up.
+
+- **Markets**: candlestick price history for any tradable item, with volume and a quick read
+  on whether it's trending up or down.
+- **Opportunities**: items selling below their recent normal price, ranked by `margin ×
+  how-liquid-it-is ÷ how-long-it-takes-to-flip`. A fat margin on something nobody buys loses
+  to a thinner one that sells in a day.
+- **Riven deals**: rivens are randomized weapon mods, so two "the same" rivens can be worth
+  wildly different amounts. This scores live listings against comparable ones and flags
+  good rolls priced like junk.
+- **Forecast**: every weapon has a *disposition*, a balancing multiplier the developers nudge
+  up or down based on how much it gets used. That directly moves riven prices. This predicts
+  the likely next move and shows its reasoning.
+- **Set arbitrage**: a Prime set is just its parts. When the set and the sum of its parts
+  drift apart in price, there's a flip: buy the parts and sell the set, or the reverse.
+- **Ducats**: the cheapest items to turn platinum into ducats (a second currency you spend on
+  Baro Ki'Teer, a traveling vendor who visits every two weeks).
+- **Baro & Prime Resurgence**: countdowns and inventories for the game's scheduled vendors,
+  plus how much cheaper currently-unvaulted Prime gear is than usual.
+- **Journal**: log your actual buys and sells; it tracks realized and unrealized profit.
+- **Watchlist, daily digest, and a `Cmd/Ctrl-K` command palette**: pin items, get a one-screen
+  briefing of what's worth acting on, and jump anywhere from the keyboard.
 
 ## Screenshots
 
-| Markets | Opportunities |
+| Buy opportunities | Undervalued rivens |
 |---|---|
-| ![Markets view: candlestick chart](docs/screenshots/markets.png) | ![Buy opportunities, ranked](docs/screenshots/opportunities.png) |
-| **Disposition forecast** | **Undervalued rivens** |
-| ![Disposition forecast with pressure gauge](docs/screenshots/forecast.png) | ![Undervalued riven listings](docs/screenshots/riven-deals.png) |
-
-## Why it exists
-
-warframe.market only exposes ~90 days of history and no archive of disposition over
-time. voidbroker snapshots the market on a schedule and **stores it forever** in a local
-DuckDB file. The longer it runs, the more proprietary the dataset becomes: that's the moat.
-
-### The edges it's built to chase
-
-1. **Riven disposition prediction** *(shipped, v1)*: disposition (the riven strength
-   multiplier DE sets per weapon from usage) is captured on every ingest, and a predictor
-   reads distance-from-baseline, current riven demand, and the archived trajectory to call
-   the *next* nerf/buff before DE ships it. Heuristic today; gets data-driven as history
-   compounds.
-2. **Riven fair-value model + undervalued-listing scanner**: appraise unique randomized
-   rivens and flag god-rolls priced like junk.
-3. **Event-driven forecasting**: Prime vault lifecycle, Baro rotations, balance patches
-   as catalysts.
-4. **Liquidity-adjusted scoring**: every opportunity weighted by *how fast it flips*,
-   not just margin. Headline prices use only live (online/in-game) orders.
-
-## Stack
-
-| Layer | Choice | Why |
-|-------|--------|-----|
-| Language | **Python 3.11+** | The project is fundamentally data + ML |
-| Store | **DuckDB** (single file) | Embedded columnar OLAP, built for time-series analytics, zero server |
-| HTTP | **httpx** (async, rate-limited) | Polite ~3 req/s sweeps of the API |
-| API | **FastAPI** | The read API the terminal talks to |
-| Scheduler | **APScheduler** | Recurring snapshots that build the archive |
-| Tooling | **uv** + **pytest** | Fast, reproducible, fully local |
-
-Everything runs locally. No hosting required: clone, `uv sync`, and replicate.
+| ![Opportunities](docs/screenshots/opportunities.png) | ![Riven deals](docs/screenshots/riven-deals.png) |
+| **Disposition forecast** | |
+| ![Forecast](docs/screenshots/forecast.png) | |
 
 ## Quickstart
 
+You'll need [uv](https://docs.astral.sh/uv/) (Python) and Node.js.
+
 ```bash
-uv sync                       # install into a local .venv
-cp .env.example .env          # optional: defaults work out of the box
+git clone https://github.com/Ferinjoque/voidbroker.git
+cd voidbroker
 
-# Populate a small, representative slice so every signal view has data on first run.
-uv run voidbroker seed        # ~150 polite API calls across prices, orders, rivens, catalysts
-
-uv run voidbroker info        # show what's in the archive
-uv run voidbroker doctor      # per-source ingestion coverage + freshness
-uv run voidbroker serve       # read API at http://127.0.0.1:8000  (docs at /docs)
+uv sync                       # install the backend into a local .venv
+uv run voidbroker seed        # pull a small market slice so every screen has data
+uv run voidbroker serve       # start the local API at http://127.0.0.1:8000
 ```
 
-`seed` is the fast way to *see the terminal populated*. To build the real, full archive
-(and the moat), run `ingest` and put it on a schedule, below.
+Then start the web terminal in a second shell:
 
-Flags for `ingest`: `--orders` (live order books), `--rivens` (riven auctions per weapon),
-`--worldstate` (Baro / catalysts), `--details` (per-item ducats + set composition, for the
-arbitrage/ducat signals). Each is one-call-per-item heavier; combine as needed.
-`--batch N` processes only the **stalest N refs per source**: bounded, resumable sweeps
-that rotate through the whole catalog (use this for scheduled runs).
+```bash
+cd web
+npm install
+npm run dev                   # open http://localhost:5173
+```
 
-### Run it on a cadence (the moat)
+`seed` is a quick one-time populate (about 150 polite API calls) so you can see the terminal
+working immediately. To build the full archive and keep it fresh, run ingestion on a schedule.
 
-The archive only compounds if ingestion runs regularly. For unattended operation, register
-a repeating bounded ingest with your OS scheduler; it survives reboots and stays polite:
+### Keep it up to date
+
+The longer voidbroker runs, the more history it has, which is exactly what the forecasts need.
+Register a recurring background job that fetches a small batch each time and rotates through
+the whole catalog:
 
 ```powershell
-# Windows: bounded ingest every 6h (see docs/OPERATIONS.md for cron / systemd).
-powershell -ExecutionPolicy Bypass -File scripts/install-schedule.ps1 -IntervalHours 6 -Batch 400
+# Windows: a Scheduled Task that ingests every 6 hours. Each run takes a few minutes.
+powershell -ExecutionPolicy Bypass -File scripts/install-schedule.ps1 -IntervalHours 6
 ```
 
-Or keep a foreground process (same tiered batching):
+It's polite by design (about 3 requests/second, bounded batches) and stays out of your way.
+For macOS/Linux equivalents and a manual foreground option, see
+[docs/OPERATIONS.md](docs/OPERATIONS.md). Check on it any time with `uv run voidbroker doctor`.
+
+## How it works
+
+```
+warframe.market API  ──▶  ingestion (rate-limited)  ──▶  local DuckDB archive
+                                                              │
+                                          signals + forecasts │
+                                                              ▼
+                          React terminal  ◀──  FastAPI read API
+```
+
+- **Backend** (Python): a rate-limited client for warframe.market, a single-file
+  [DuckDB](https://duckdb.org/) archive that accumulates price, disposition, and auction
+  history, the signal and forecasting logic, and a small [FastAPI](https://fastapi.tiangolo.com/)
+  read API. There's also a full command-line interface if you prefer the terminal.
+- **Frontend** (`web/`): a React + Vite + Tailwind single-page app that reads from the local
+  API. Dense tables, inline charts, keyboard-first.
+
+Why local DuckDB? warframe.market only exposes about 90 days of history and keeps no record of
+how weapon dispositions change over time. By snapshotting on a schedule, voidbroker slowly
+builds a dataset you can't get any other way, which is what makes the predictions possible.
+
+## Command line
+
+Everything in the UI is also a command, handy for quick checks or scripting:
 
 ```bash
-uv run voidbroker schedule --interval-hours 6 --batch 400 --auction-batch 40   # Ctrl+C to stop
+uv run voidbroker digest      # one briefing: the few things worth acting on now
+uv run voidbroker signals     # buy opportunities
+uv run voidbroker forecast    # predicted disposition buffs/nerfs
+uv run voidbroker deals       # undervalued rivens
+uv run voidbroker arbitrage   # set-vs-parts flips
+uv run voidbroker info        # what's currently in your archive
 ```
 
-`voidbroker doctor` (or `GET /health/ingest`) shows coverage % and the oldest/newest fetch
-per source so you can confirm sweeps are keeping up. Full guide: [docs/OPERATIONS.md](docs/OPERATIONS.md).
+`uv run voidbroker --help` lists them all.
 
-### Signals at a glance (CLI)
+## Tech
 
-```bash
-uv run voidbroker digest                  # one briefing: the few things worth acting on now
-uv run voidbroker signals                 # liquidity-adjusted buy opportunities
-uv run voidbroker forecast                # predicted next disposition buffs/nerfs
-uv run voidbroker backtest                # disposition-predictor accuracy vs realized changes
-uv run voidbroker backtest-opportunities  # did buying the dip historically pay?
-uv run voidbroker deals --positives-only  # undervalued riven listings (roll-quality ranked)
-uv run voidbroker arbitrage               # set-vs-parts flips (build a set, or split one)
-uv run voidbroker ducats                  # cheapest plat→ducat conversions for Baro
-uv run voidbroker journal                 # trade-journal P&L (log trades in the web UI)
-uv run voidbroker alert                   # surface NEW high-conviction signals + notify
-uv run voidbroker baro                    # void trader status + inventory
-uv run voidbroker resurgence              # Prime Resurgence: what's unvaulted + when it closes
-```
+Python 3.11+, DuckDB, httpx, FastAPI, APScheduler, Typer, uv, pytest, ruff on the backend.
+React, Vite, TypeScript, Tailwind, TanStack Query, and lightweight-charts on the frontend.
+Everything runs locally with no hosting required.
 
-### Frontend terminal
+## Contributing
 
-A Warframe-themed React terminal lives in [`web/`](web/) (Vite + Tailwind +
-lightweight-charts). With `voidbroker serve` running:
-
-```bash
-cd web && npm install && npm run dev      # http://localhost:5173
-```
-
-Every signal has a screen (digest, markets, opportunities, riven deals, forecast,
-arbitrage, ducats, journal, Baro, resurgence, validation) plus a local **watchlist** you
-pin items to. A `⌘/Ctrl-K` command palette jumps to any view or searches the whole
-catalog; analytical tables export to **CSV**; the active view + item live in the URL, so a
-refresh or a shared link lands you back where you were. Responsive down to mobile, with
-reduced-motion and compact-density toggles.
-
-### Read API
-
-| Endpoint | Returns |
-|----------|---------|
-| `GET /digest` | Cross-signal "act on this now" briefing |
-| `GET /summary` | Row counts across the archive |
-| `GET /health/ingest` | Per-source ingestion coverage + freshness |
-| `GET /items/{slug}/prices` | Daily candlestick series |
-| `GET /items/{slug}/orderbook` | Latest live order-book aggregate |
-| `GET /weapons/{slug}/disposition` | Disposition history (the predictor's data) |
-| `GET /leaderboard/volume` | Most-traded items by latest-day volume |
-| `GET /signals/opportunities` | Liquidity-adjusted buy opportunities, ranked |
-| `GET /signals/disposition-forecast` | Predicted next disposition buffs/nerfs, ranked by conviction |
-| `GET /signals/disposition-backtest` | Walk-forward accuracy of the predictor vs realized changes |
-| `GET /signals/opportunity-backtest` | Did buying below baseline historically pay (median return, edge)? |
-| `GET /signals/disposition-changes` | Detected riven disposition buffs/nerfs over time |
-| `GET /signals/riven-deals` | Undervalued riven listings vs comparables |
-| `GET /signals/set-arbitrage` | Prime set vs summed-parts price gaps (build/split flips) |
-| `GET /signals/ducats` | Items ranked by ducats-per-platinum (Baro prep) |
-| `GET /rivens/{weapon}/auctions` | Latest stored riven auctions for a weapon |
-| `GET /catalysts/void-trader` | Baro Ki'Teer status + inventory |
-| `GET /catalysts/resurgence` | Prime Resurgence (Varzia): unvaulted Primes + re-vault countdown |
-| `GET /journal` | Trade-journal P&L (realized + unrealized) and open positions |
-| `POST /trades` · `DELETE /trades/{id}` | Log / remove a trade (the only mutating endpoints) |
-
-### How opportunities are scored
-
-Opportunities are items whose best **live** sell price sits below their recent baseline,
-scored by `margin% × liquidity ÷ (1 + est. flip-days)`, so a fat margin on something
-that never trades ranks *below* a thinner margin that flips in a day. Requires an
-`ingest --orders` pass first (live order books). Weights are documented heuristics (v1),
-to be recalibrated against realized flips as history accumulates.
-
-## Tests
-
-```bash
-uv run pytest
-```
-
-Network is fully mocked (respx) and the DB runs in-memory, so the suite is fast and offline.
-
-## Data sources
-
-- warframe.market **v2** API: catalog (`/items`), riven weapons + disposition
-  (`/riven/weapons`), live orders (`/orders/item/{slug}`)
-- warframe.market **v1** API: price statistics (`/items/{slug}/statistics`)
-
-See [`docs/`](docs/) for the API reference and reconciliation notes.
+Issues and PRs are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup and the checks
+to run before opening a PR. The design system the frontend follows is in [DESIGN.md](DESIGN.md).
 
 ## License
 
-[MIT](LICENSE). Not affiliated with Digital Extremes or warframe.market.
+[MIT](LICENSE). voidbroker is a fan project and is not affiliated with Digital Extremes or
+warframe.market.
