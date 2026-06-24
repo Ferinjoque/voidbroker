@@ -1,6 +1,6 @@
 /** Local-first watchlist: a set of pinned item slugs persisted to localStorage and shared
     across the app via useSyncExternalStore, so a star toggled in one view updates every
-    other instantly. No backend — this is the user's own private pin board. */
+    other instantly. No backend, this is the user's own private pin board. */
 import { useSyncExternalStore } from "react";
 
 const LS_KEY = "vb_watchlist";
@@ -24,7 +24,7 @@ function emit() {
   try {
     localStorage.setItem(LS_KEY, JSON.stringify(slugs));
   } catch {
-    /* storage full / disabled — keep the in-memory copy working anyway */
+    /* storage full / disabled, keep the in-memory copy working anyway */
   }
   listeners.forEach((l) => l());
 }

@@ -17,11 +17,11 @@
 
 A complete, well-factored skeleton:
 
-- **Backend** — 15 modules (~2.5k lines), 66 tests green, ruff clean. Ingestion, a
+- **Backend**, 15 modules (~2.5k lines), 66 tests green, ruff clean. Ingestion, a
   single-file DuckDB archive (3 time series), four signal layers (opportunities, riven
   deals, disposition moves, Baro), a disposition **predictor** (heuristic v1), an
   APScheduler loop, a FastAPI read API, and a Typer CLI.
-- **Frontend** — 7-view React/Vite/Tailwind terminal ("void observatory"), 5 vitest,
+- **Frontend**, 7-view React/Vite/Tailwind terminal ("void observatory"), 5 vitest,
   Playwright-verified, 0 console errors.
 
 ## The one thing that matters
@@ -41,7 +41,7 @@ So the spine of the roadmap is: **compound the data → measure the edges → de
 
 ---
 
-## Track A — Data & compounding (foundation, highest leverage)
+## Track A, Data & compounding (foundation, highest leverage)
 
 Nothing else pays off until the archive grows on its own.
 
@@ -61,7 +61,7 @@ Nothing else pays off until the archive grows on its own.
   successful run per source, rows added, and rate-limit/error counts, so silent failures
   surface instead of quietly starving the models.
 
-## Track B — Validation & calibration (turn heuristics into measured models)
+## Track B, Validation & calibration (turn heuristics into measured models)
 
 Once history exists, *prove the edges* instead of asserting them.
 
@@ -70,7 +70,7 @@ Once history exists, *prove the edges* instead of asserting them.
   the forecast from data *as of before* the change and scores the direction call, reporting
   hit-rate vs the naive base rate and a confidence-calibration table. Scores the
   price-independent core (reversion + momentum); demand calibration waits on deep auction
-  history. Reads near-empty until DE rebalances are captured — that's expected and honest.
+  history. Reads near-empty until DE rebalances are captured, that's expected and honest.
 - **B2. Opportunity backtest.** Did flagged opportunities actually revert to baseline, and
   in roughly the predicted flip-time? Use it to recalibrate the `margin% × liquidity ÷
   (1+flip_days)` weights and the liquidity saturation constant against reality.
@@ -79,7 +79,7 @@ Once history exists, *prove the edges* instead of asserting them.
   proxy, momentum, weapon class, time-since-last-change). Keep the pure-function shape and
   the human `reasons[]`; only the weighting becomes data-driven.
 
-## Track C — New predictive edges (event-driven forecasting)
+## Track C, New predictive edges (event-driven forecasting)
 
 The README promises these; they're differentiated and hard for humans to track.
 
@@ -87,29 +87,29 @@ The README promises these; they're differentiated and hard for humans to track.
   rotation from WFCD's `vaultTrader` feed (`worldstate.fetch_resurgence`,
   `catalysts.resurgence_status`, `resurgence_snapshots` table, `voidbroker resurgence`,
   `GET /catalysts/resurgence`, wired into `ingest --worldstate`). Surfaces which vaulted
-  Primes are buyable now and the re-vault countdown — the actionable buy-now-hold window.
+  Primes are buyable now and the re-vault countdown, the actionable buy-now-hold window.
   **Price-impact linking shipped** (`vault.py`): conservatively maps Varzia's messy item
   names to market "X Prime Set" slugs (exact normalized match, never guesses), and the
   Resurgence view now shows each matched Prime's plat now vs. its pre-window price (live: the
   current rotation is −10% to −31% cheaper, confirming the thesis). *Next:* predict re-vault
   timing from accumulated rotation history; model the post-revault recovery curve.
-- **C2. Baro return model.** We snapshot the void trader; turn it into prediction — next
+- **C2. Baro return model.** We snapshot the void trader; turn it into prediction, next
   arrival window, which items historically return, and how their plat prices move around a
   Baro visit. The archive already has the inputs.
 - **C3. Balance-patch catalysts.** Tie disposition moves and price shocks to patch dates
   (WFCD/patch-notes feed) so the predictor knows a rebalance just landed and can reset
   momentum instead of mistaking a step-change for noise.
 
-## Track G — Economy arbitrage *(new edges, shipped)*
+## Track G, Economy arbitrage *(new edges, shipped)*
 
 - **G1. Set vs. parts arbitrage.** ✓ Ingests per-item detail (`/v2/item` → ducats, setParts)
-  and flags Prime sets whose price diverges from the summed part prices — "build" (buy parts,
+  and flags Prime sets whose price diverges from the summed part prices, "build" (buy parts,
   sell the set) or "split" (buy the set, relist parts). Liquidity-gated prices + a margin/
   profit sanity floor keep stale-price noise out. `voidbroker arbitrage`, `/signals/set-arbitrage`.
-- **G2. Ducat efficiency.** ✓ Ranks items by ducats-per-platinum — the cheapest way to convert
+- **G2. Ducat efficiency.** ✓ Ranks items by ducats-per-platinum, the cheapest way to convert
   plat into Baro ducats. `voidbroker ducats`, `/signals/ducats`.
 
-## Track D — Riven fair-value depth
+## Track D, Riven fair-value depth
 
 The current scanner groups by attribute *signature* only and ignores roll magnitudes.
 
@@ -120,7 +120,7 @@ The current scanner groups by attribute *signature* only and ignores roll magnit
   set, roll grades, re-rolls, mastery, polarity) to produce a true expected price and a
   residual-based "undervalued" score, replacing the comparable-median heuristic.
 
-## Track E — Product, ops & distribution
+## Track E, Product, ops & distribution
 
 Make it the replicable public project the README promises.
 
@@ -131,12 +131,12 @@ Make it the replicable public project the README promises.
   verified from scratch, screenshots/GIFs of the terminal, a small seed/sample archive so a
   cloner sees signals immediately without waiting days for ingestion.
 - **E3. Alerts / digest.** When a high-conviction signal lands (deep-undervalued riven,
-  imminent high-confidence nerf, Baro arrival), emit a digest — a `voidbroker digest` CLI
+  imminent high-confidence nerf, Baro arrival), emit a digest, a `voidbroker digest` CLI
   and a frontend badge/feed. This is what makes a compounding archive *actionable*.
 - **E4. CI.** GitHub Actions running pytest + ruff + the web build on push, so the public
   repo stays green.
 
-## Track F — Frontend depth
+## Track F, Frontend depth
 
 - **F1. Forecast detail.** Click a weapon → disposition history chart with the predicted
   next move and the demand proxy over time. Makes the prediction legible.
@@ -153,15 +153,15 @@ Make it the replicable public project the README promises.
 
 The dependency chain is real: **B and C need A; F2 needs B.** Recommended order:
 
-1. **A1 + A2 + A4** — get unattended, full-coverage ingestion running with health
+1. **A1 + A2 + A4**, get unattended, full-coverage ingestion running with health
    visibility. Start the clock on the moat. (Also unblocks the Opportunities view, which is
    empty without broad order books.)
-2. **E1** — truth-up the docs while the data accumulates (cheap, keeps the repo honest).
-3. **B1** — the disposition backtest, as soon as there are a few realized changes to score.
+2. **E1**, truth-up the docs while the data accumulates (cheap, keeps the repo honest).
+3. **B1**, the disposition backtest, as soon as there are a few realized changes to score.
    This tells us whether the headline feature actually works.
-4. **C1 or C2** — the next net-new edge (Prime vault is the higher-impact, Baro the lower-
+4. **C1 or C2**, the next net-new edge (Prime vault is the higher-impact, Baro the lower-
    risk since we already snapshot it).
-5. **B3 / D / F2** — deepen and visualize once there's measured signal to build on.
+5. **B3 / D / F2**, deepen and visualize once there's measured signal to build on.
 
 ### Immediate next sprint (proposed)
 
@@ -170,5 +170,5 @@ The dependency chain is real: **B and C need A; F2 needs B.** Recommended order:
 - A4: `voidbroker doctor` + `/health/ingest`.
 - E1: README/API-doc refresh for the predictor (folded in, low cost).
 
-That ends with the archive compounding on its own and visibly healthy — the precondition
-for everything else — plus honest docs.
+That ends with the archive compounding on its own and visibly healthy, the precondition
+for everything else, plus honest docs.

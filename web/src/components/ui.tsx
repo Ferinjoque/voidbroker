@@ -224,7 +224,7 @@ export function ItemName({
   );
 }
 
-/** Pin/unpin an item to the watchlist. Reactive — reflects the shared store everywhere. */
+/** Pin/unpin an item to the watchlist. Reactive, reflects the shared store everywhere. */
 export function StarButton({ slug, size = 15 }: { slug: string; size?: number }) {
   const watched = useWatchlist().includes(slug);
   return (

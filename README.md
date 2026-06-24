@@ -67,13 +67,16 @@ Everything runs locally. No hosting required: clone, `uv sync`, and replicate.
 uv sync                       # install into a local .venv
 cp .env.example .env          # optional: defaults work out of the box
 
-# Build the archive (catalog + 90d price history). --limit keeps a first run quick.
-uv run voidbroker ingest --limit 50
+# Populate a small, representative slice so every signal view has data on first run.
+uv run voidbroker seed        # ~150 polite API calls across prices, orders, rivens, catalysts
 
 uv run voidbroker info        # show what's in the archive
 uv run voidbroker doctor      # per-source ingestion coverage + freshness
 uv run voidbroker serve       # read API at http://127.0.0.1:8000  (docs at /docs)
 ```
+
+`seed` is the fast way to *see the terminal populated*. To build the real, full archive
+(and the moat), run `ingest` and put it on a schedule, below.
 
 Flags for `ingest`: `--orders` (live order books), `--rivens` (riven auctions per weapon),
 `--worldstate` (Baro / catalysts), `--details` (per-item ducats + set composition, for the

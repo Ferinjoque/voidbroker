@@ -50,7 +50,7 @@ class Item(BaseModel):
 
 
 class ItemDetail(BaseModel):
-    """Per-item detail from v2 ``/item/{slug}`` — ducats + set composition.
+    """Per-item detail from v2 ``/item/{slug}``, ducats + set composition.
 
     The catalog list endpoint omits these, so they're fetched per item. ``set_parts`` holds
     the item *ids* of a set's components (resolve to slugs via the items table).
@@ -76,7 +76,7 @@ class ItemDetail(BaseModel):
 
 
 class RivenWeapon(BaseModel):
-    """A riven-capable weapon from v2 ``/riven/weapons`` — carries live disposition.
+    """A riven-capable weapon from v2 ``/riven/weapons``, carries live disposition.
 
     Snapshotting this over time is the dataset the disposition predictor trains on.
     """
@@ -206,7 +206,7 @@ class StatRecord(BaseModel):
 
 
 class OrderUser(BaseModel):
-    """Order author — ``status`` (online/ingame/offline) drives liquidity scoring."""
+    """Order author, ``status`` (online/ingame/offline) drives liquidity scoring."""
 
     model_config = ConfigDict(populate_by_name=True)
 

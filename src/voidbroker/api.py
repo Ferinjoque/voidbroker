@@ -1,4 +1,4 @@
-"""FastAPI read API over the local archive — the frontend terminal talks to this.
+"""FastAPI read API over the local archive, the frontend terminal talks to this.
 
 Endpoints are ``async`` and call the (fast, local) DuckDB layer directly, which keeps
 access serialized on the event loop thread and avoids cross-thread connection misuse.
@@ -290,7 +290,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def ducat_efficiency(
         limit: int = Query(50, ge=1, le=300), min_ducats: int = Query(15, ge=0, le=1000)
     ) -> dict:
-        """Items ranked by ducats-per-platinum — cheapest plat→ducat conversion for Baro."""
+        """Items ranked by ducats-per-platinum, cheapest plat→ducat conversion for Baro."""
         key = f"ducats:{min_ducats}"
 
         def _run() -> list:

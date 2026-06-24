@@ -58,7 +58,7 @@ export function CommandPalette({
     return () => window.removeEventListener("keydown", onKey);
   }, [setQ]);
 
-  // Focus the input when the palette opens — a DOM side effect, no setState.
+  // Focus the input when the palette opens, a DOM side effect, no setState.
   useEffect(() => {
     if (!open) return;
     const t = setTimeout(() => inputRef.current?.focus(), 30);

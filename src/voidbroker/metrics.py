@@ -1,4 +1,4 @@
-"""Pure analytical functions — no I/O, so they're trivially unit-testable.
+"""Pure analytical functions, no I/O, so they're trivially unit-testable.
 
 This is where order-book aggregation lives now, and where liquidity scoring and the
 fair-value / disposition models will grow later.

@@ -1,4 +1,4 @@
-/** Minimal hash-based routing — no router dependency. The active view (and the Markets
+/** Minimal hash-based routing, no router dependency. The active view (and the Markets
     slug) live in the URL so refresh survives, the back button works, and any screen is a
     shareable link, e.g. #view=markets&slug=ash-prime-set. */
 import { NAV, type ViewId } from "../components/nav";

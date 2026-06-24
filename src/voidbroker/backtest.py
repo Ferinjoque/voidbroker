@@ -1,4 +1,4 @@
-"""Walk-forward backtest of the disposition predictor — pure functions, no I/O.
+"""Walk-forward backtest of the disposition predictor, pure functions, no I/O.
 
 The predictor is only worth trusting if its past calls would have been right. This replays
 the archive: for every realized disposition change, it recomputes the forecast using *only*
@@ -170,7 +170,7 @@ def backtest_reversion(
     day, the forward ``horizon``-day return is recorded as the baseline. Days whose close sits
     at least ``dip_pct`` below the moving-average baseline are the *signal* entries. If the
     signal's median forward return beats the baseline (positive ``edge``), buying the dip has
-    historically paid — the empirical basis for the opportunity score's mean-reversion bet.
+    historically paid, the empirical basis for the opportunity score's mean-reversion bet.
     """
     base: list[float] = []
     sig: list[float] = []

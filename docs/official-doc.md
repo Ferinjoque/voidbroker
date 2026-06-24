@@ -1,4 +1,4 @@
-<!-- OFFICIAL Warframe Market API v2 documentation — server v0.23.0.
+<!-- OFFICIAL Warframe Market API v2 documentation, server v0.23.0.
 Rendered verbatim from the official Notion doc via web/scripts/extract-notion.mjs:
 https://42bytes.notion.site/WFM-Api-v2-Documentation-5d987e4aa2f74b55a80db1a09932459d
 Kept as the long original reference. For voidbroker's internal notes / what we actually

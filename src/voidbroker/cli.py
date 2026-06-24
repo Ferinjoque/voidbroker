@@ -25,6 +25,7 @@ from .ingest import (
     ingest_item_details,
     ingest_riven_auctions,
     ingest_statistics,
+    seed_ingest,
     snapshot_orders,
     sync_catalog,
     sync_resurgence,
@@ -223,12 +224,49 @@ def ingest(
     )
 
 
+async def _run_seed(items: int, weapons: int) -> None:
+    settings = get_settings()
+    _setup_file_logging(settings.db_path)
+    storage = Storage(settings.db_path)
+    async with WarframeMarketClient(settings) as client:
+        with Progress(SpinnerColumn(), TextColumn("{task.description}"), console=console) as prog:
+            task = prog.add_task("Seeding archive: syncing catalog…", total=None)
+            report = await seed_ingest(
+                client, storage, item_count=items, weapon_count=weapons,
+                on_progress=lambda d, t: prog.update(
+                    task, description=f"Seeding archive: prices {d}/{t}"
+                ),
+            )
+    storage.close()
+    console.print(
+        f"[green]Seeded:[/green] {report.items:,} catalog items, "
+        f"{report.price_rows:,} price rows, {report.order_snapshots} order books, "
+        f"{report.detail_rows} item details, {report.riven_auctions} riven auctions."
+    )
+    console.print("Run [bold]voidbroker serve[/bold] (and the web UI) to see signals populated.")
+
+
+@app.command()
+def seed(
+    items: int = typer.Option(60, help="How many Prime-gear items to populate."),
+    weapons: int = typer.Option(12, help="How many riven weapons to snapshot auctions for."),
+) -> None:
+    """Populate a fresh archive with a small, representative market slice so every signal
+    view shows data immediately after cloning, instead of empty states.
+
+    Picks liquid Prime gear from the live catalog and pulls prices, order books, details,
+    riven auctions, and the worldstate catalysts: roughly 150 polite API calls. This is a
+    one-shot demo populate; use `schedule` to compound the archive over time.
+    """
+    asyncio.run(_run_seed(items, weapons))
+
+
 @app.command()
 def info() -> None:
     """Show a summary of what's in the local archive."""
     settings = get_settings()
     storage = Storage(settings.db_path)
-    table = Table(title=f"voidbroker archive — {settings.db_path}")
+    table = Table(title=f"voidbroker archive, {settings.db_path}")
     table.add_column("Table")
     table.add_column("Rows", justify="right")
     tables = (
@@ -262,7 +300,7 @@ def digest(per_section: int = typer.Option(5, help="Items per section.")) -> Non
                 f"flip ~{o['flip_days_est']:g}d)"
             )
     else:
-        console.print("  [dim]none — run ingest --orders[/dim]")
+        console.print("  [dim]none, run ingest --orders[/dim]")
 
     deals = d["riven_deals"]
     console.print("\n[bold]Riven deals[/bold] (quality rolls below comps)")
@@ -274,7 +312,7 @@ def digest(per_section: int = typer.Option(5, help="Items per section.")) -> Non
                 f"roll {x['roll_label']})"
             )
     else:
-        console.print("  [dim]none — run ingest --rivens[/dim]")
+        console.print("  [dim]none, run ingest --rivens[/dim]")
 
     fc = d["disposition_forecasts"]
     console.print("\n[bold]Disposition watch[/bold] (likely next moves)")
@@ -300,7 +338,7 @@ def digest(per_section: int = typer.Option(5, help="Items per section.")) -> Non
     baro = d["void_trader"]
     if baro and baro["phase"] == "active":
         console.print(
-            f"\n[bold]Baro[/bold] is here — leaves in {baro['hours_until_departure']}h "
+            f"\n[bold]Baro[/bold] is here, leaves in {baro['hours_until_departure']}h "
             f"({baro['inventory_size']} items)"
         )
 
@@ -338,7 +376,7 @@ def alert(
         f"(within {window_hours:g}h window)"
     )
     for a in new[:15]:
-        console.print(f"  [gold1]★[/gold1] {a.title} — [dim]{a.detail}[/dim]")
+        console.print(f"  [gold1]★[/gold1] {a.title}, [dim]{a.detail}[/dim]")
     if new and notify:
         summary = "; ".join(a.title for a in new[:3])
         _notify_desktop("voidbroker", f"{len(new)} new signals: {summary}")
@@ -420,7 +458,7 @@ def ducats(
     limit: int = typer.Option(15, help="How many items to show."),
     min_ducats: int = typer.Option(15, help="Ignore trivial-ducat items."),
 ) -> None:
-    """Rank items by ducats-per-plat — the cheapest way to turn plat into Baro ducats."""
+    """Rank items by ducats-per-plat, the cheapest way to turn plat into Baro ducats."""
     settings = get_settings()
     storage = Storage(settings.db_path)
     deals = rank_ducat_efficiency(storage.ducat_efficiency_inputs(), min_ducats=min_ducats)
@@ -593,7 +631,7 @@ def backtest() -> None:
     edge = hit - base
     colour = "green" if edge > 0.02 else "yellow" if edge >= -0.02 else "red"
     console.print(
-        f"[bold]Disposition backtest[/bold] — {report.total_changes} realized changes, "
+        f"[bold]Disposition backtest[/bold], {report.total_changes} realized changes, "
         f"{report.called} directional calls"
     )
     console.print(
@@ -632,7 +670,7 @@ def backtest_opportunities(
     edge = r.edge or 0.0
     colour = "green" if edge > 0.005 else "yellow" if edge >= -0.005 else "red"
     console.print(
-        f"[bold]Opportunity backtest[/bold] — buy {r.dip_pct:.0%}+ below baseline, "
+        f"[bold]Opportunity backtest[/bold], buy {r.dip_pct:.0%}+ below baseline, "
         f"hold {r.horizon_days}d ({r.signals:,} signals / {r.observations:,} obs)"
     )
     console.print(
@@ -662,13 +700,13 @@ def baro() -> None:
     console.print(f"[bold]{status.character or 'Void Trader'}[/bold] @ {status.location or '?'}")
     if status.phase == "active":
         console.print(
-            f"[green]ACTIVE[/green] — leaves in {status.hours_until_departure}h, "
+            f"[green]ACTIVE[/green], leaves in {status.hours_until_departure}h, "
             f"{status.inventory_size} items in stock"
         )
         for i in state.inventory[:30]:
             console.print(f"  • {i.item}  [cyan]{i.ducats}d[/cyan] + {i.credits:,}cr")
     elif status.phase == "incoming":
-        console.print(f"[yellow]INCOMING[/yellow] — arrives in {status.hours_until_arrival}h")
+        console.print(f"[yellow]INCOMING[/yellow], arrives in {status.hours_until_arrival}h")
     else:
         console.print("[dim]Status unknown[/dim]")
 
@@ -687,18 +725,18 @@ def resurgence() -> None:
         )
         return
     status = resurgence_status(state, datetime.now(UTC))
-    console.print(f"[bold]{status.character or 'Varzia'}[/bold] — Prime Resurgence")
+    console.print(f"[bold]{status.character or 'Varzia'}[/bold], Prime Resurgence")
     if status.phase == "active":
         days = (status.hours_until_rotation or 0) / 24
         console.print(
-            f"[green]ACTIVE[/green] — {status.item_count} Primes unvaulted, window closes in "
+            f"[green]ACTIVE[/green], {status.item_count} Primes unvaulted, window closes in "
             f"{days:.1f}d. Buy now while supply is up; they appreciate after re-vault."
         )
         for i in state.inventory:
             if not i.is_pack:
                 console.print(f"  • {i.item}  [cyan]{i.ducats} Aya[/cyan]")
     elif status.phase == "upcoming":
-        console.print(f"[yellow]UPCOMING[/yellow] — starts in {status.hours_until_start}h")
+        console.print(f"[yellow]UPCOMING[/yellow], starts in {status.hours_until_start}h")
     else:
         console.print("[dim]Status unknown[/dim]")
 
@@ -725,7 +763,7 @@ async def _run_scheduler(
     )
     scheduler.start()
     console.print(
-        f"[green]Scheduler running[/green] — full ingest every {interval_hours}h. "
+        f"[green]Scheduler running[/green], full ingest every {interval_hours}h. "
         "Press Ctrl+C to stop."
     )
     while True:  # keep the event loop alive for the scheduler
@@ -745,7 +783,7 @@ def schedule(
         40, help="Stalest weapons for the heavy riven-auction sweep per run."
     ),
 ) -> None:
-    """Run recurring ingestion until interrupted — this is what builds the archive.
+    """Run recurring ingestion until interrupted, this is what builds the archive.
 
     For unattended operation, prefer registering a repeating one-shot ``ingest --batch``
     via the OS scheduler (see scripts/install-schedule.ps1 and docs/OPERATIONS.md); it
@@ -784,7 +822,7 @@ def doctor() -> None:
 
     cat = health["catalog"]
     console.print(
-        f"[bold]Archive[/bold] — {cat['items']:,} items, {cat['riven_weapons']:,} riven weapons"
+        f"[bold]Archive[/bold], {cat['items']:,} items, {cat['riven_weapons']:,} riven weapons"
     )
     table = Table(title="Ingestion health")
     table.add_column("Source")

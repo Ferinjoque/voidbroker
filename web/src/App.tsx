@@ -20,8 +20,8 @@ import { parseHash, writeHash } from "./lib/route";
 
 // Views are eager so each screen's header/chrome paints instantly on navigation; only the
 // data regions below show skeletons (via AsyncBlock) while their queries resolve. The heavy
-// chart library (lightweight-charts) is the one thing code-split — lazily imported inside
-// PriceChart's consumers (Markets, ItemDrawer) — so it never bloats the first paint.
+// chart library (lightweight-charts) is the one thing code-split, lazily imported inside
+// PriceChart's consumers (Markets, ItemDrawer), so it never bloats the first paint.
 
 export default function App() {
   // Seed from the URL so a refresh / shared link lands on the right view.

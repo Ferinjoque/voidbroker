@@ -1,4 +1,4 @@
-"""The digest — one "what should I act on right now" view over every signal layer.
+"""The digest, one "what should I act on right now" view over every signal layer.
 
 A compounding archive is only useful if it surfaces the few things worth acting on today.
 This orchestrates the existing signal layers (opportunities, quality riven deals, imminent
@@ -17,7 +17,7 @@ from .rivens import find_undervalued
 from .signals import rank_opportunities
 from .storage import Storage
 
-# Only surface riven deals whose roll is at least average — a cheap weak roll isn't a steal.
+# Only surface riven deals whose roll is at least average, a cheap weak roll isn't a steal.
 _MIN_ROLL_QUALITY = 0.5
 
 

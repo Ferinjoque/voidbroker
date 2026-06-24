@@ -1,4 +1,4 @@
-"""Trade journal P&L — pure FIFO accounting over logged buys/sells, no I/O.
+"""Trade journal P&L, pure FIFO accounting over logged buys/sells, no I/O.
 
 Turns the terminal from advisory into accountable: log what you actually bought and sold and
 see whether it made plat. Realized profit is computed FIFO (oldest lot sold first) per item;

@@ -1,4 +1,4 @@
-"""Recurring ingestion — the cadence that makes the archive a moat.
+"""Recurring ingestion, the cadence that makes the archive a moat.
 
 A single interval job runs ``full_ingest`` on a schedule. The longer it runs, the more
 price/disposition/auction history voidbroker holds that nobody can retroactively obtain.

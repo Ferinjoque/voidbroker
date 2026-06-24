@@ -3,9 +3,9 @@
 Single file, no server. Holds the catalog plus three time series that accumulate on
 every ingest and form voidbroker's moat:
 
-* ``price_history``       — daily candlesticks (bootstrapped from the 90d statistics feed)
-* ``disposition_history`` — riven disposition over time (the predictor's training data)
-* ``order_snapshots``     — point-in-time live order-book aggregates (liquidity)
+* ``price_history``      , daily candlesticks (bootstrapped from the 90d statistics feed)
+* ``disposition_history``, riven disposition over time (the predictor's training data)
+* ``order_snapshots``    , point-in-time live order-book aggregates (liquidity)
 """
 
 from __future__ import annotations
@@ -508,7 +508,7 @@ class Storage:
         for items that actually trade (avg daily volume >= ``min_volume``).
 
         Using the median (not a single ``moving_avg``) and gating on volume keeps stale
-        fat-finger prices on dead items out of the arbitrage / ducat signals — those outliers
+        fat-finger prices on dead items out of the arbitrage / ducat signals, those outliers
         otherwise produce absurd 1000%+ margins.
         """
         # Materialize the global max once in a CTE; the correlated form re-scanned
@@ -843,12 +843,12 @@ class Storage:
 
         Replaces the N+1 pattern (a window query per weapon). The latest snapshot per auction
         is selected first (QUALIFY), then ``live_only`` keeps exactly the *live* set (visible,
-        open, owner online/in-game) — the same rows the deal scanner would keep. Filtering
+        open, owner online/in-game), the same rows the deal scanner would keep. Filtering
         live *after* the QUALIFY matters: owner_status changes between snapshots, so filtering
         before it could resurface a stale "online" snapshot of an auction whose owner is now
         offline. Pushing the filter into SQL means Python reconstructs far fewer objects.
         """
-        # Two fully-static statements (no f-string interpolation) — keeps this the only
+        # Two fully-static statements (no f-string interpolation), keeps this the only
         # place that could grow into an injection site free of any interpolation pattern.
         rows = self._rows(_RIVEN_AUCTIONS_LIVE_SQL if live_only else _RIVEN_AUCTIONS_ALL_SQL)
         grouped: dict[str, list[RivenAuction]] = {}
@@ -951,7 +951,7 @@ class Storage:
 
     def resurgence_price_impact(self) -> list[dict]:
         """For each unvaulted Prime that links to a market set, its price now vs the close
-        just before the resurgence window opened — quantifying the dip (and the recovery
+        just before the resurgence window opened, quantifying the dip (and the recovery
         upside once it re-vaults). Only confidently-matched sets appear.
         """
         state = self.latest_resurgence()
@@ -1017,7 +1017,7 @@ class Storage:
     # --- alerts (dedup) ----------------------------------------------------------
 
     def recent_alert_keys(self, within_hours: float, now: datetime | None = None) -> set[str]:
-        """Alert keys fired within the window — so a standing signal isn't re-notified."""
+        """Alert keys fired within the window, so a standing signal isn't re-notified."""
         now = now or _utcnow()
         rows = self._rows(
             "SELECT key FROM alert_log WHERE last_alerted_at >= ? - (? * INTERVAL 1 HOUR)",

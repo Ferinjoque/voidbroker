@@ -1,11 +1,11 @@
-"""Trade signals derived from the archive — pure functions, no I/O.
+"""Trade signals derived from the archive, pure functions, no I/O.
 
 Two signals ship in Phase 2:
 
-* **Opportunities** — items whose best *live* sell price sits below their recent price
+* **Opportunities**, items whose best *live* sell price sits below their recent price
   baseline, ranked by a liquidity-adjusted score so a fat margin on something that never
   trades doesn't outrank a thinner margin that flips in a day.
-* **Disposition changes** — concrete moves in a riven weapon's disposition over time,
+* **Disposition changes**, concrete moves in a riven weapon's disposition over time,
   the raw events the predictor will eventually learn to anticipate.
 
 The scoring weights are deliberate, documented heuristics (v1). They're meant to be

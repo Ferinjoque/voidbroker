@@ -1,4 +1,4 @@
-"""Worldstate catalysts — scheduled events that move prices.
+"""Worldstate catalysts, scheduled events that move prices.
 
 Baro Ki'Teer (the "void trader") arrives roughly every two weeks selling otherwise
 unobtainable items for ducats + credits. His arrival and inventory are a known, scheduled
@@ -86,7 +86,7 @@ async def fetch_void_trader(
 # Varzia rotates a set of otherwise-vaulted Prime items into temporary availability for
 # Aya/Regal Aya. While an item is in resurgence its market supply rises and plat price
 # softens; once it re-vaults, scarcity pushes the price back up. So "what's resurged now,
-# and when does the window close" is a buy-now-hold signal — the inverse of Baro.
+# and when does the window close" is a buy-now-hold signal, the inverse of Baro.
 
 
 class ResurgenceItem(BaseModel):
@@ -104,7 +104,7 @@ class ResurgenceItem(BaseModel):
 
     @property
     def is_pack(self) -> bool:
-        """Bundle packages (vs. individually tradable items) — heuristic on the path/name."""
+        """Bundle packages (vs. individually tradable items), heuristic on the path/name."""
         u = (self.unique_name or "").lower()
         return "package" in u or "pack" in self.item.lower()
 

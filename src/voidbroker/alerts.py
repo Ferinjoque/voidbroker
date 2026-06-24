@@ -1,4 +1,4 @@
-"""Alert selection — pull the *few* high-conviction, act-now items out of the full signal
+"""Alert selection, pull the *few* high-conviction, act-now items out of the full signal
 set, with stable keys for dedup. Pure functions; the CLI handles persistence + notifying.
 
 The digest shows everything worth a glance; alerts are the subset worth interrupting you for:
@@ -105,7 +105,7 @@ def select_alerts(
 def render_markdown(alerts: list[Alert], now: object, new_keys: set[str] | None = None) -> str:
     """A dated alert digest as markdown. ``new_keys`` marks first-time alerts with a ★."""
     new_keys = new_keys or set()
-    lines = [f"# voidbroker alerts — {now}", ""]
+    lines = [f"# voidbroker alerts, {now}", ""]
     if not alerts:
         lines.append("_No high-conviction signals right now._")
         return "\n".join(lines)
@@ -121,6 +121,6 @@ def render_markdown(alerts: list[Alert], now: object, new_keys: set[str] | None 
         lines.append(f"## {titles.get(kind, kind)}")
         for a in items:
             star = "★ " if a.key in new_keys else ""
-            lines.append(f"- {star}**{a.title}** — {a.detail}")
+            lines.append(f"- {star}**{a.title}**, {a.detail}")
         lines.append("")
     return "\n".join(lines)

@@ -1,21 +1,21 @@
-"""Riven disposition prediction — the headline signal, pure functions, no I/O.
+"""Riven disposition prediction, the headline signal, pure functions, no I/O.
 
 Digital Extremes sets each weapon's *riven disposition* inversely to how much the
 weapon is used: heavily-used weapons get a low disposition (weaker rivens), neglected
 weapons get a high one (stronger rivens to coax people into using them). DE rebalances
 periodically. warframe.market exposes only the *current* disposition and no history, so
-nobody can see the trajectory — voidbroker snapshots it forever, which is what makes a
+nobody can see the trajectory, voidbroker snapshots it forever, which is what makes a
 forward-looking call possible at all.
 
 The forecast combines three forces into one signed ``pressure`` score where
 **positive = buff (disposition likely to rise)** and **negative = nerf (likely to fall)**:
 
-1. **Mean reversion** — disposition is bounded and balances around a nominal 1.0. A value
+1. **Mean reversion**, disposition is bounded and balances around a nominal 1.0. A value
    far above nominal is more likely to be cut; far below, more likely to be raised.
-2. **Demand pressure** — riven auction activity (how many people sell rivens for this
+2. **Demand pressure**, riven auction activity (how many people sell rivens for this
    weapon, and at what price) is a proxy for in-game usage. Strong demand is exactly the
    usage signal DE nerfs; weak demand invites a buff.
-3. **Momentum** — the recent slope of archived disposition. Early on this is silent (not
+3. **Momentum**, the recent slope of archived disposition. Early on this is silent (not
    enough snapshots) and contributes nothing; it sharpens as the archive compounds.
 
 These weights are deliberate, documented heuristics (v1), meant to be recalibrated against

@@ -1,10 +1,10 @@
-# Warframe Market API — voidbroker reference
+# Warframe Market API, voidbroker reference
 
 > **Upstream:** the official docs (server v0.23.0) are captured in
 > [`official-doc.md`](official-doc.md), rendered from the
 > [WFM Api v2 Documentation (Notion)](https://42bytes.notion.site/WFM-Api-v2-Documentation-5d987e4aa2f74b55a80db1a09932459d)
 > via a headless browser. **This file is the source of truth for how voidbroker uses the
-> API** — every shape below was verified against the live API on 2026-06-22.
+> API**, every shape below was verified against the live API on 2026-06-22.
 
 ## Base URLs
 
@@ -18,7 +18,7 @@ lives on v1**. voidbroker talks to both.
 
 ## Authentication
 
-- **Read endpoints are public** — `items`, `riven/weapons`, `orders`, `statistics`
+- **Read endpoints are public**, `items`, `riven/weapons`, `orders`, `statistics`
   need no token. voidbroker's ingestion is entirely unauthenticated.
 - Authenticated actions use **v2 OAuth2 Bearer** tokens: `Authorization: Bearer <token>`
   (legacy v1 tokens used the `JWT ` prefix and have scope `all`). voidbroker only sends this
@@ -44,9 +44,9 @@ semaphore, and retries `429`/`5xx` with backoff, honoring `Retry-After`.
 
 Two lighter alternatives to the full per-item order book, worth adopting later:
 
-- `GET /v2/orders/recent` — up to 500 orders from the last 4h, online users only. A single
+- `GET /v2/orders/recent`, up to 500 orders from the last 4h, online users only. A single
   call for a market-wide "tape" of what's actively moving.
-- `GET /v2/orders/item/{slug}/top` — top ≤5 buy + ≤5 sell from online users, with `rank` /
+- `GET /v2/orders/item/{slug}/top`, top ≤5 buy + ≤5 sell from online users, with `rank` /
   `subtype` query params. Far cheaper than the full book when only the best quotes matter.
 
 ## Response envelopes
@@ -60,7 +60,7 @@ On error, v2 sets `error` and may omit `data`; v1 returns `{ "error": { ... } }`
 
 ## Endpoints voidbroker ingests
 
-### `GET /v2/items` — full item catalog
+### `GET /v2/items`, full item catalog
 
 ~3834 items. One object each:
 
@@ -77,9 +77,9 @@ On error, v2 sets `error` and may omit `data`; v1 returns `{ "error": { ... } }`
 - `slug` is the stable key used in every other item endpoint.
 - Riven mods carry the `"riven"` tag (voidbroker's `Item.is_riven`).
 
-### `GET /v2/riven/weapons` — riven-capable weapons (carries disposition)
+### `GET /v2/riven/weapons`, riven-capable weapons (carries disposition)
 
-~417 weapons. **`disposition` is included here** — snapshotting this endpoint over time
+~417 weapons. **`disposition` is included here**, snapshotting this endpoint over time
 is what builds voidbroker's disposition-history dataset.
 
 ```json
@@ -95,7 +95,7 @@ is what builds voidbroker's disposition-history dataset.
 }
 ```
 
-### `GET /v1/items/{slug}/statistics` — price history (candlestick-grade)
+### `GET /v1/items/{slug}/statistics`, price history (candlestick-grade)
 
 Returns `payload.statistics_closed` with two windows: **`48hours`** (hourly) and
 **`90days`** (daily). Each row is a full OHLC candle plus volume and indicators:
@@ -116,10 +116,10 @@ Returns `payload.statistics_closed` with two windows: **`48hours`** (hourly) and
 There is also a `statistics_live` block (omitted by voidbroker for now). `wa_price` is the
 volume-weighted average; `donch_top`/`donch_bot` are Donchian channel bounds.
 
-### `GET /v2/orders/item/{slug}` — live order book
+### `GET /v2/orders/item/{slug}`, live order book
 
 Every standing buy/sell order for an item. The author's `status` is the key liquidity
-signal — voidbroker treats only `online`/`ingame` orders as fillable ("live").
+signal, voidbroker treats only `online`/`ingame` orders as fillable ("live").
 
 ```json
 {
@@ -147,7 +147,7 @@ signal — voidbroker treats only `online`/`ingame` orders as fillable ("live").
 
 ## Deprecations confirmed (corrections to stale docs)
 
-These **v1** endpoints are dead — call them and you get an error, not data:
+These **v1** endpoints are dead, call them and you get an error, not data:
 
 | Endpoint | Result | Replacement |
 |----------|--------|-------------|
@@ -156,12 +156,12 @@ These **v1** endpoints are dead — call them and you get an error, not data:
 
 `GET /v1/items/{slug}/statistics` is **still live** and is the only statistics source.
 
-## Not yet verified (Phase 2 — riven valuation)
+## Not yet verified (Phase 2, riven valuation)
 
 These power the riven fair-value model and aren't wired into ingestion yet; verify shapes
 before relying on them:
 
-- `GET /v1/auctions/search?type=riven&weapon_url_name=<slug>&...` — note this expects the
+- `GET /v1/auctions/search?type=riven&weapon_url_name=<slug>&...`, note this expects the
   weapon's **auction** url_name (e.g. `kuva_bramma`, not `bramma`); a bad slug returns
   `app.auctions.errors.item_not_exist`.
-- `GET /v2/riven/attributes` — the riven stat catalog (positives/negatives) for appraisal.
+- `GET /v2/riven/attributes`, the riven stat catalog (positives/negatives) for appraisal.

@@ -1,4 +1,4 @@
-# Operations — running the archive unattended
+# Operations, running the archive unattended
 
 The whole thesis of voidbroker is a dataset that **compounds**. That only happens if
 ingestion runs on a cadence without you babysitting it. This is how.
@@ -42,7 +42,7 @@ batch via `--auction-batch` (default 40), keeping a scheduled run to a few minut
 still rotating through all 417 weapons over a day or two. Don't crank `--auction-batch`;
 raise `--batch` (prices/orders) instead if you want faster item coverage.
 
-## Windows (Scheduled Task) — recommended
+## Windows (Scheduled Task), recommended
 
 A repeating **one-shot** task is more robust than a long-lived `schedule` process: it
 survives reboots and each run is isolated.
@@ -60,7 +60,7 @@ powershell -ExecutionPolicy Bypass -File scripts/uninstall-schedule.ps1
 
 The installer uses `schtasks.exe`, which registers a current-user task without elevation on
 most machines. (The PowerShell `Register-ScheduledTask` cmdlet talks to Task Scheduler over
-WMI and is often blocked by ACLs in a non-admin session with `HRESULT 0x80070005` — that's
+WMI and is often blocked by ACLs in a non-admin session with `HRESULT 0x80070005`, that's
 why this avoids it.) If `schtasks` itself is denied, run the script from an elevated
 PowerShell, or just run the generated `scripts\scheduled-ingest.cmd` directly / point Task
 Scheduler's GUI at it.
@@ -75,7 +75,7 @@ to `data/logs/scheduled.log`.
 0 */6 * * * cd /path/to/voidbroker && /usr/local/bin/uv run voidbroker ingest --batch 400 --auction-batch 40 --orders --rivens --worldstate >> data/logs/cron.log 2>&1
 ```
 
-### Linux (systemd timer) — alternative
+### Linux (systemd timer), alternative
 
 `~/.config/systemd/user/voidbroker.service`:
 
@@ -113,7 +113,7 @@ uv run voidbroker schedule --interval-hours 6 --batch 400 --auction-batch 40   #
 
 ## Protect the archive (it *is* the product)
 
-The DuckDB file at `data/voidbroker.duckdb` is the irreplaceable asset — its history can't
+The DuckDB file at `data/voidbroker.duckdb` is the irreplaceable asset, its history can't
 be re-fetched. Back it up periodically (a plain file copy while no ingest is mid-write is
 fine):
 

@@ -271,7 +271,7 @@ html[data-reduce-motion="1"] *::after {
 }
 
 /* Compact density (Settings → Compact tables): tighten every table row so more fits on
-   screen. Targets all DataTable cells/headers via the cascade — no per-component prop. */
+   screen. Targets all DataTable cells/headers via the cascade, no per-component prop. */
 html[data-density="compact"] table td,
 html[data-density="compact"] table th {
   padding-top: 0.3rem;

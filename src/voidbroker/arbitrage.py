@@ -1,13 +1,13 @@
-"""Set-vs-parts arbitrage and ducat efficiency — pure functions, no I/O.
+"""Set-vs-parts arbitrage and ducat efficiency, pure functions, no I/O.
 
 Two classic Warframe economy plays that are tedious to track by hand but trivial once the
 catalog's ducat values and set compositions are archived:
 
-* **Set arbitrage** — a Prime "set" trades as one listing, but it's really its component
+* **Set arbitrage**, a Prime "set" trades as one listing, but it's really its component
   parts. When the set price and the summed part prices diverge, there's a flip: buy the
   parts and sell the assembled set ("build"), or buy the set and relist the parts
   individually ("split"). We only trust a spread when *every* part has a price.
-* **Ducat efficiency** — every item has a fixed ducat value (what Baro pays). Ranking parts
+* **Ducat efficiency**, every item has a fixed ducat value (what Baro pays). Ranking parts
   by ducats-per-platinum surfaces the cheapest way to convert plat into ducats for Baro.
 
 Prices are caller-supplied (the storage layer joins the latest market price); these
@@ -44,7 +44,7 @@ def set_arbitrage(
     only scored when it has >= ``min_parts`` parts and *every* part is priced (otherwise the
     spread is untrustworthy). Returns flips with margin in [``min_margin``, ``max_margin``]
     *and* at least ``min_profit`` plat of absolute profit (cheap sets show huge percentages on
-    a few plat of profit), ranked by margin. ``max_margin`` discards implausible spreads — a
+    a few plat of profit), ranked by margin. ``max_margin`` discards implausible spreads, a
     real set arbitrage over ~150% would already have been taken; it's a stale/illiquid price.
     """
     out: list[SetArbitrage] = []
@@ -96,7 +96,7 @@ class DucatDeal:
 def rank_ducat_efficiency(
     items: list[dict], min_ducats: int = 15, min_price: float = 1.0
 ) -> list[DucatDeal]:
-    """Rank items by ducats per platinum — the cheapest plat→ducat conversion for Baro prep.
+    """Rank items by ducats per platinum, the cheapest plat→ducat conversion for Baro prep.
 
     Each ``items`` row: ``{slug, name, thumb, ducats, price}``. Filters out trivial-ducat
     items and sub-1p noise (where the ratio explodes on rounding). Ranked best ratio first.

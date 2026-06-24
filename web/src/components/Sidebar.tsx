@@ -85,7 +85,7 @@ export function Sidebar({ view, onSelect }: { view: ViewId; onSelect: (id: ViewI
   );
   const [compact, setCompact] = useState(() => localStorage.getItem(LS_DENSITY) === "compact");
 
-  // Persist only — collapsing also closes the popover, but that's done in `setCollapse`
+  // Persist only, collapsing also closes the popover, but that's done in `setCollapse`
   // (an event handler) rather than here, so this effect never calls setState.
   useEffect(() => {
     localStorage.setItem(LS_COLLAPSED, collapsed ? "1" : "0");
@@ -210,7 +210,7 @@ export function Sidebar({ view, onSelect }: { view: ViewId; onSelect: (id: ViewI
         )}
       </div>
 
-      {/* Nav groups — flex-1 so it fills the pinned column and scrolls internally when
+      {/* Nav groups, flex-1 so it fills the pinned column and scrolls internally when
           there are more items than fit, keeping the footer always visible (scalable). */}
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden">
         {groups.map((g) => {

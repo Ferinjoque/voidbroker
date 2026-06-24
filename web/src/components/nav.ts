@@ -24,7 +24,7 @@ export interface NavItem {
 }
 
 // Single source of truth for the nav. Kept in its own module (not Sidebar.tsx) so the
-// component file only exports a component — keeps react-refresh happy and lets App import
+// component file only exports a component, keeps react-refresh happy and lets App import
 // ViewId without pulling in the whole sidebar.
 export const NAV: NavItem[] = [
   { id: "digest", label: "Today", group: "Overview", icon: Newspaper },

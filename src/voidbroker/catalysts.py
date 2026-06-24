@@ -1,4 +1,4 @@
-"""Catalyst signals — turning scheduled worldstate events into actionable status.
+"""Catalyst signals, turning scheduled worldstate events into actionable status.
 
 Pure functions: callers pass ``now`` so behavior is deterministic and testable.
 """
@@ -70,7 +70,7 @@ def resurgence_status(state: ResurgenceState, now: datetime) -> ResurgenceStatus
     """Classify the current Prime Resurgence window and the countdown that matters.
 
     ``active``   → these Primes are buyable now; report hours until they re-vault (the buy
-    window — supply is up and plat is soft, so this is the moment to accumulate).
+    window, supply is up and plat is soft, so this is the moment to accumulate).
     ``upcoming`` → a rotation is scheduled; report hours until it starts.
     """
     activation = state.activation

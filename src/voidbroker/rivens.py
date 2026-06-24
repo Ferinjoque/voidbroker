@@ -1,9 +1,9 @@
-"""Riven valuation — comparables-based appraisal and the undervalued-listing scanner.
+"""Riven valuation, comparables-based appraisal and the undervalued-listing scanner.
 
 Rivens are unique randomized items, so there's no single "price." But auctions for the
 *same weapon with the same attribute signature* (same set of positive/negative stats) are
 genuine comparables. We group live auctions by signature, take the median asking price per
-group, and flag listings priced well below their comparables — a god-roll mispriced like
+group, and flag listings priced well below their comparables, a god-roll mispriced like
 junk. This is data-driven and works today; an ML model can refine it once auction history
 accumulates.
 """
@@ -29,8 +29,8 @@ def attribute_signature(auction: RivenAuction, positives_only: bool = False) -> 
     signature defines the group.
 
     ``positives_only=True`` groups on the positive stats alone (negatives collapse to a
-    has/hasn't flag). Exact-negative matching fragments liquidity — most builds care far
-    more about the positives — so the looser key surfaces comparables for the scanner while
+    has/hasn't flag). Exact-negative matching fragments liquidity, most builds care far
+    more about the positives, so the looser key surfaces comparables for the scanner while
     the strict key stays available for precise appraisal.
     """
     pos = sorted(a.url_name for a in auction.attributes if a.positive)

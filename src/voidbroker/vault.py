@@ -3,7 +3,7 @@
 Varzia lists items with messy, inconsistent names ("Prime Stradavar Gun", "Equinox Prime",
 "Tipedo Prime Weapon") and mixes in cosmetics, relics and bundle packs that aren't tradable
 as sets. The market sells the canonical "X Prime Set". This reduces each inventory name to
-its base and matches it to a set slug, but only on an *exact* normalized match — so it
+its base and matches it to a set slug, but only on an *exact* normalized match, so it
 leaves an entry unmatched rather than mislinking it. Pure functions, no I/O.
 """
 

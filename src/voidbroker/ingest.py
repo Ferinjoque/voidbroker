@@ -1,4 +1,4 @@
-"""Ingestion orchestration — the jobs that build and refresh the local archive.
+"""Ingestion orchestration, the jobs that build and refresh the local archive.
 
 Network calls are paced globally by the client's rate limiter, so fanning out with
 ``asyncio`` here is safe and polite; a bounded semaphore keeps in-flight requests and
@@ -189,6 +189,58 @@ class IngestReport:
     riven_auctions: int = 0
     void_trader: bool = False
     resurgence: bool = False
+
+
+async def seed_ingest(
+    client: WarframeMarketClient,
+    storage: Storage,
+    *,
+    item_count: int = 60,
+    weapon_count: int = 12,
+    worldstate: bool = True,
+    on_progress: ProgressCb = None,
+) -> IngestReport:
+    """Build a small but representative archive so a freshly cloned repo shows live signals
+    immediately instead of empty views.
+
+    The slug list is derived FROM the just-synced catalog (Prime gear: it carries the most
+    volume, ducats, and set composition), so the slugs are always valid and every signal
+    lights up: prices feed Markets/Opportunities, order books feed the liquidity score,
+    details feed Arbitrage/Ducats, riven auctions feed Riven Deals, and worldstate feeds
+    Baro/Resurgence. This is a one-shot demo populate, not the compounding scheduled sweep.
+    """
+    report = IngestReport()
+    catalog = await sync_catalog(client, storage)
+    report.items = catalog.items
+    report.riven_weapons = catalog.riven_weapons
+
+    item_slugs = [
+        r["slug"]
+        for r in storage._rows(
+            "SELECT slug FROM items WHERE lower(slug) LIKE '%prime%' ORDER BY slug LIMIT ?",
+            [item_count],
+        )
+    ]
+    report.price_rows = await ingest_statistics(
+        client, storage, item_slugs, on_progress=on_progress
+    )
+    report.order_snapshots = await snapshot_orders(client, storage, item_slugs)
+    report.detail_rows = await ingest_item_details(client, storage, item_slugs)
+
+    report.riven_attributes = await sync_riven_attributes(client, storage)
+    weapon_slugs = [
+        r["slug"]
+        for r in storage._rows(
+            "SELECT slug FROM riven_weapons ORDER BY slug LIMIT ?", [weapon_count]
+        )
+    ]
+    report.riven_auctions = await ingest_riven_auctions(client, storage, weapon_slugs)
+
+    if worldstate:
+        report.void_trader = await sync_void_trader(storage, platform=client.settings.platform)
+        report.resurgence = await sync_resurgence(storage, platform=client.settings.platform)
+
+    return report
 
 
 async def full_ingest(
