@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Digest } from "./views/Digest";
 import { Dashboard } from "./views/Dashboard";
 import { Forecast } from "./views/Forecast";
@@ -16,6 +16,7 @@ import { Watchlist } from "./views/Watchlist";
 import { ItemDrawer, type DrawerTarget } from "./components/ItemDrawer";
 import { Sidebar, type ViewId } from "./components/Sidebar";
 import { CommandPalette } from "./components/CommandPalette";
+import { parseHash, writeHash } from "./lib/route";
 
 // Views are eager so each screen's header/chrome paints instantly on navigation; only the
 // data regions below show skeletons (via AsyncBlock) while their queries resolve. The heavy
@@ -23,9 +24,29 @@ import { CommandPalette } from "./components/CommandPalette";
 // PriceChart's consumers (Markets, ItemDrawer) — so it never bloats the first paint.
 
 export default function App() {
-  const [view, setView] = useState<ViewId>("digest");
-  const [slug, setSlug] = useState(""); // empty -> Markets defaults to top-volume item
+  // Seed from the URL so a refresh / shared link lands on the right view.
+  const initial = parseHash();
+  const [view, setView] = useState<ViewId>(initial.view);
+  const [slug, setSlug] = useState(initial.slug); // empty -> Markets defaults to top-volume item
   const [drawer, setDrawer] = useState<DrawerTarget | null>(null);
+
+  // Keep the hash in sync with state (replace on the very first write, push thereafter so
+  // Back works), and react to back/forward by re-reading the hash.
+  useEffect(() => {
+    writeHash({ view, slug }, true);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    writeHash({ view, slug });
+  }, [view, slug]);
+  useEffect(() => {
+    const onHashChange = () => {
+      const r = parseHash();
+      setView(r.view);
+      setSlug(r.slug);
+    };
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
 
   const openItemDetail = (s: string, name?: string | null, thumb?: string | null) =>
     setDrawer({ kind: "item", slug: s, name, thumb });

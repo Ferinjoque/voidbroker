@@ -14,6 +14,7 @@ export type { ViewId } from "./nav";
 
 const LS_COLLAPSED = "vb_sidebar_collapsed";
 const LS_REDUCE_MOTION = "vb_reduce_motion";
+const LS_DENSITY = "vb_density"; // "compact" tightens table row height
 
 const Diamond = () => (
   <span
@@ -82,6 +83,7 @@ export function Sidebar({ view, onSelect }: { view: ViewId; onSelect: (id: ViewI
   const [reduceMotion, setReduceMotion] = useState(
     () => localStorage.getItem(LS_REDUCE_MOTION) === "1",
   );
+  const [compact, setCompact] = useState(() => localStorage.getItem(LS_DENSITY) === "compact");
 
   // Persist only — collapsing also closes the popover, but that's done in `setCollapse`
   // (an event handler) rather than here, so this effect never calls setState.
@@ -92,6 +94,10 @@ export function Sidebar({ view, onSelect }: { view: ViewId; onSelect: (id: ViewI
     document.documentElement.dataset.reduceMotion = reduceMotion ? "1" : "0";
     localStorage.setItem(LS_REDUCE_MOTION, reduceMotion ? "1" : "0");
   }, [reduceMotion]);
+  useEffect(() => {
+    document.documentElement.dataset.density = compact ? "compact" : "comfortable";
+    localStorage.setItem(LS_DENSITY, compact ? "compact" : "comfortable");
+  }, [compact]);
 
   const setCollapse = (next: boolean) => {
     setCollapsed(next);
@@ -307,6 +313,10 @@ export function Sidebar({ view, onSelect }: { view: ViewId; onSelect: (id: ViewI
             <label className="flex items-center justify-between gap-3 text-xs text-ink-300">
               <span>Reduce motion</span>
               <Toggle on={reduceMotion} onChange={setReduceMotion} />
+            </label>
+            <label className="mt-2.5 flex items-center justify-between gap-3 text-xs text-ink-300">
+              <span>Compact tables</span>
+              <Toggle on={compact} onChange={setCompact} />
             </label>
           </Popover>
         )}

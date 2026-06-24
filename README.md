@@ -111,6 +111,13 @@ lightweight-charts). With `voidbroker serve` running:
 cd web && npm install && npm run dev      # http://localhost:5173
 ```
 
+Every signal has a screen (digest, markets, opportunities, riven deals, forecast,
+arbitrage, ducats, journal, Baro, resurgence, validation) plus a local **watchlist** you
+pin items to. A `⌘/Ctrl-K` command palette jumps to any view or searches the whole
+catalog; analytical tables export to **CSV**; the active view + item live in the URL, so a
+refresh or a shared link lands you back where you were. Responsive down to mobile, with
+reduced-motion and compact-density toggles.
+
 ### Read API
 
 | Endpoint | Returns |
@@ -136,11 +143,7 @@ cd web && npm install && npm run dev      # http://localhost:5173
 | `GET /journal` | Trade-journal P&L (realized + unrealized) and open positions |
 | `POST /trades` · `DELETE /trades/{id}` | Log / remove a trade (the only mutating endpoints) |
 
-### Signals
-
-```bash
-uv run voidbroker signals          # top liquidity-adjusted buy opportunities
-```
+### How opportunities are scored
 
 Opportunities are items whose best **live** sell price sits below their recent baseline,
 scored by `margin% × liquidity ÷ (1 + est. flip-days)` — so a fat margin on something
